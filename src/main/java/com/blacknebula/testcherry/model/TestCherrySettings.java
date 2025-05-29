@@ -1,5 +1,6 @@
 package com.blacknebula.testcherry.model;
 
+import com.blacknebula.testcherry.testframework.NamingConvention;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
@@ -9,12 +10,13 @@ import com.intellij.util.xmlb.XmlSerializerUtil;
 @State(
         name = "TestCherrySettings",
         storages = {
-                @Storage(file = "$WORKSPACE_FILE$")}
+                @Storage("$WORKSPACE_FILE$")}
 )
 public class TestCherrySettings implements PersistentStateComponent<TestCherrySettings> { // TODO research about idea ProjectComponent interface
 
 
     String testFramework;
+    NamingConvention namingConvention;
 
     public TestCherrySettings() {
         testFramework = "";
@@ -36,6 +38,14 @@ public class TestCherrySettings implements PersistentStateComponent<TestCherrySe
 
     public void setTestFramework(String testFramework) {
         this.testFramework = testFramework;
+    }
+
+    public NamingConvention getNamingConvention() {
+        return namingConvention;
+    }
+
+    public void setNamingConvention(final NamingConvention namingConvention) {
+        this.namingConvention = namingConvention;
     }
 
     public TestCherrySettings getState() {

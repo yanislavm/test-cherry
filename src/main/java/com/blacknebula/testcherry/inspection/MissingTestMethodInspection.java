@@ -6,7 +6,9 @@ import com.blacknebula.testcherry.model.TestClass;
 import com.blacknebula.testcherry.model.TestMethod;
 import com.blacknebula.testcherry.model.TestMethodImpl;
 import com.blacknebula.testcherry.quickfix.CreateTestMethodFix;
+import com.blacknebula.testcherry.testframework.NamingConvention;
 import com.blacknebula.testcherry.testframework.SupportedFrameworks;
+import com.blacknebula.testcherry.testframework.TestFrameworkStrategy;
 import com.blacknebula.testcherry.util.BddUtil;
 import com.blacknebula.testcherry.util.Constants;
 import com.intellij.codeInsight.daemon.HighlightDisplayKey;
@@ -26,7 +28,7 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.impl.source.jsp.jspJava.JspClass;
 import com.intellij.psi.javadoc.PsiDocTag;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
@@ -88,10 +90,11 @@ public class MissingTestMethodInspection extends AbstractBaseJavaLocalInspection
         }
 
         Project project = aClass.getProject();
+        TestCherrySettings testCherrySettings = TestCherrySettings.getInstance(project);
 
         String testFramework;
         if (!ApplicationManager.getApplication().isUnitTestMode()) {
-            testFramework = TestCherrySettings.getInstance(project).getTestFramework();
+            testFramework = testCherrySettings.getTestFramework();
             if (StringUtils.isEmpty(testFramework)) {
                 return null;
             }
@@ -100,16 +103,20 @@ public class MissingTestMethodInspection extends AbstractBaseJavaLocalInspection
         }
 
         //  create TestClass for current class
-        TestClass testClass = BDDCore.createTestClass(aClass, SupportedFrameworks.getStrategyForFramework(project, testFramework));
+        NamingConvention namingConvention = testCherrySettings.getNamingConvention();
+        TestFrameworkStrategy strategyForFramework = SupportedFrameworks.getStrategyForFramework(project, testFramework, namingConvention);
+        TestClass testClass = BDDCore.createTestClass(aClass, strategyForFramework);
 
 
         //  highlight warning should cover test class name
         //  if test class doesn't exists place warning at class level
         if (!testClass.reallyExists()) {
             //  create warning
-            return new ProblemDescriptor[]{
-                    manager.createProblemDescriptor(testClass.getClassUnderTest().getNameIdentifier(), "Missing Test Class",
-                            isOnTheFly, LocalQuickFix.EMPTY_ARRAY, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)};
+            if (testClass.getClassUnderTest() != null && testClass.getClassUnderTest().getNameIdentifier() != null) {
+                return new ProblemDescriptor[]{
+                        manager.createProblemDescriptor(testClass.getClassUnderTest().getNameIdentifier(), "Missing Test Class",
+                                isOnTheFly, LocalQuickFix.EMPTY_ARRAY, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)};
+            }
         }
 
         List<ProblemDescriptor> result = new ArrayList<ProblemDescriptor>();
@@ -124,6 +131,16 @@ public class MissingTestMethodInspection extends AbstractBaseJavaLocalInspection
 
         // TODO create fix for this problem
         return result.toArray(new ProblemDescriptor[result.size()]);
+    }
+
+    @Override
+    public SuppressIntentionAction @NotNull [] getSuppressActions(PsiElement element) {
+        String shortName = getShortName();
+        HighlightDisplayKey key = HighlightDisplayKey.find(shortName);
+        if (key == null) {
+            throw new AssertionError("HighlightDisplayKey.find(" + shortName + ") is null. Inspection: " + getClass());
+        }
+        return SuppressManager.getInstance().createSuppressActions(key);
     }
 
     private void highlightShouldTags(InspectionManager manager, boolean isOnTheFly, List<ProblemDescriptor> result, TestMethod method) {
@@ -155,15 +172,5 @@ public class MissingTestMethodInspection extends AbstractBaseJavaLocalInspection
                     "Missing test method for should annotation", ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly, localQuickFix == null ? null : new LocalQuickFix[]{localQuickFix});
             result.add(problemDescriptor);
         }
-    }
-
-    @Override
-    public SuppressIntentionAction @NotNull [] getSuppressActions(PsiElement element) {
-        String shortName = getShortName();
-        HighlightDisplayKey key = HighlightDisplayKey.find(shortName);
-        if (key == null) {
-            throw new AssertionError("HighlightDisplayKey.find(" + shortName + ") is null. Inspection: " + getClass());
-        }
-        return SuppressManager.getInstance().createSuppressActions(key);
     }
 }

@@ -1,12 +1,13 @@
 package com.blacknebula.testcherry.model;
 
 import com.blacknebula.testcherry.TestFrameworkNotConfigured;
+import com.blacknebula.testcherry.testframework.NamingConvention;
 import com.blacknebula.testcherry.testframework.SupportedFrameworks;
 import com.blacknebula.testcherry.testframework.TestFrameworkStrategy;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * In a 'service provider framework' like BDDCore would be the 'service access API'
@@ -54,20 +55,23 @@ public final class BDDCore {
      */
     public static TestClass createTestClass(PsiClass sutClass) throws TestFrameworkNotConfigured {
         Project project = sutClass.getProject();
+        TestCherrySettings testCherrySettings = TestCherrySettings.getInstance(project);
 
         String testFramework;
 
         if (ApplicationManager.getApplication().isUnitTestMode()) {
             testFramework = "JUNIT3";
         } else {
-            testFramework = TestCherrySettings.getInstance(project).getTestFramework();
+            testFramework = testCherrySettings.getTestFramework();
             if (StringUtils.isEmpty(testFramework)) {
                 throw new TestFrameworkNotConfigured();
             }
 
         }
         //  create TestClass for current class
-        return TestClassImpl.newInstance(sutClass, SupportedFrameworks.getStrategyForFramework(project, testFramework));
+        NamingConvention namingConvention = testCherrySettings.getNamingConvention();
+        TestFrameworkStrategy strategyForFramework = SupportedFrameworks.getStrategyForFramework(project, testFramework, namingConvention);
+        return TestClassImpl.newInstance(sutClass, strategyForFramework);
     }
 
 }

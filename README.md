@@ -93,6 +93,50 @@ You can download the plugin "**testCherry**" directly from the IDE.
 
 <h2>Change Notes</h2>
 
+**3.17**
+* Support build range `242.*`
+
+**3.16**
+* Specify plugin display name in settings. Move plugin config under `Settings > Tools`
+
+**3.15**
+* Remove  internal and scheduled for removal API usages
+
+**3.14**
+* Support build range `241.*`
+
+**3.13**
+* Add support for IntelliJ IDEA version **2023.3**
+
+**3.12**
+* Add support for IntelliJ IDEA version **2023.2**
+
+**3.11**
+* Add support for IntelliJ IDEA version **2023.1**
+
+**3.10**
+* Add support for IntelliJ IDEA version **2022.3**
+
+**3.9**
+* Add support for IntelliJ IDEA version **2022.2**
+
+**3.8**
+* Add support for IntelliJ IDEA version **2021.3**
+
+**3.7**
+* Add support for IntelliJ IDEA version **2021.2**
+
+**3.6**
+* Fixing a NullPointerException that is thrown in IntelliJ Idea
+* Fixing outOfBoundException when generating a test case
+* adding a comment tag for verifies to prevent the warnings
+
+**3.5**
+* Support for snake case test cases generation
+
+**3.4**
+* Add support for IntelliJ IDEA version **2021.1**
+
 **3.1**
 * fix multiple test method generation
 
@@ -108,7 +152,17 @@ You can download the plugin "**testCherry**" directly from the IDE.
 **1.0**
 * Implement test case generation for with IntelliJ IDEA version **2020.2**
 
-<h2>Java doc generation Workaround</h2>
+<h2>Known issues</h2>
+<h3>Add Test Cherry icon to main Toolbar </h3>
+
+![image](snapshots/toolbar-1.jpg)
+
+![image](snapshots/toolbar-2.jpg)
+
+![image](snapshots/toolbar-3.jpg)
+
+
+<h3>Java doc generation Workaround</h3>
 When generating javadoc from code, the javadoc tool generates errors while encountering the TestCherry tags:
 
 > error: unknown tag: should
@@ -126,3 +180,4 @@ In IntelliJ, this could be done by adding it at the 'Other command line argument
 * To <a href="https://github.com/hablutzel1/GenerateTestCases">GenerateTestCases</a> project author <a href="https://github.com/hablutzel1">Jaime Hablutzel</a>.
 * To <a href="https://wiki.openmrs.org/display/docs/Generate+Test+Case+Plugin">OpenMRS</a> team for @should style testing.
 * To <a href="https://github.com/Fontyschriek">@Fontyschriek</a> for his suggestions to improve the plugin.
+* To <a href="https://github.com/yanislavm">@yanislavm</a> for his valuable improvements.
